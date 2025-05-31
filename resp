@@ -1,1 +1,115 @@
-a
+#include <iostream>
+using namespace std;
+
+const int MAX_BUKU = 100;
+const int MAX_PEMINJAM = 100;
+
+struct Buku {
+    int id;
+    char judul[50];
+    bool tersedia;
+};
+
+struct Peminjam {
+    int id;
+    char nama[50];
+    int id_buku; // -1 jika belum meminjam
+};
+
+Buku daftarBuku[MAX_BUKU];
+int jumlahBuku = 0;
+
+Peminjam daftarPeminjam[MAX_PEMINJAM];
+int jumlahPeminjam = 0;
+
+void tambahBuku(int id, const char judul[]) {
+    daftarBuku[jumlahBuku].id = id;
+    strcpy(daftarBuku[jumlahBuku].judul, judul);
+    daftarBuku[jumlahBuku].tersedia = true;
+    jumlahBuku++;
+}
+
+void tambahPeminjam(int id, const char nama[]) {
+    daftarPeminjam[jumlahPeminjam].id = id;
+    strcpy(daftarPeminjam[jumlahPeminjam].nama, nama);
+    daftarPeminjam[jumlahPeminjam].id_buku = -1;
+    jumlahPeminjam++;
+}
+
+void tampilkanBuku() {
+    cout << "\nDaftar Buku:\n";
+    for (int i = 0; i < jumlahBuku; i++) {
+        cout << "ID: " << daftarBuku[i].id
+             << ", Judul: " << daftarBuku[i].judul
+             << ", Status: " << (daftarBuku[i].tersedia ? "Tersedia" : "Dipinjam") << endl;
+    }
+}
+
+void tampilkanPeminjam() {
+    cout << "\nDaftar Peminjam:\n";
+    for (int i = 0; i < jumlahPeminjam; i++) {
+        cout << "ID: " << daftarPeminjam[i].id
+             << ", Nama: " << daftarPeminjam[i].nama
+             << ", Buku dipinjam: ";
+        if (daftarPeminjam[i].id_buku == -1) {
+            cout << "Belum meminjam\n";
+        } else {
+            cout << daftarPeminjam[i].id_buku << endl;
+        }
+    }
+}
+
+void pinjamBuku(int id_peminjam, int id_buku) {
+    for (int i = 0; i < jumlahPeminjam; i++) {
+        if (daftarPeminjam[i].id == id_peminjam && daftarPeminjam[i].id_buku == -1) {
+            for (int j = 0; j < jumlahBuku; j++) {
+                if (daftarBuku[j].id == id_buku && daftarBuku[j].tersedia) {
+                    daftarBuku[j].tersedia = false;
+                    daftarPeminjam[i].id_buku = id_buku;
+                    cout << "Peminjaman berhasil.\n";
+                    return;
+                }
+            }
+            cout << "Buku tidak tersedia.\n";
+            return;
+        }
+    }
+    cout << "Peminjam tidak ditemukan atau sudah meminjam buku.\n";
+}
+
+void kembalikanBuku(int id_peminjam) {
+    for (int i = 0; i < jumlahPeminjam; i++) {
+        if (daftarPeminjam[i].id == id_peminjam && daftarPeminjam[i].id_buku != -1) {
+            int id_buku = daftarPeminjam[i].id_buku;
+            for (int j = 0; j < jumlahBuku; j++) {
+                if (daftarBuku[j].id == id_buku) {
+                    daftarBuku[j].tersedia = true;
+                    daftarPeminjam[i].id_buku = -1;
+                    cout << "Buku berhasil dikembalikan.\n";
+                    return;
+                }
+            }
+        }
+    }
+    cout << "Peminjam tidak sedang meminjam buku.\n";
+}
+
+int main() {
+    tambahBuku(1, "Struktur Data");
+    tambahBuku(2, "Basis Data");
+    tambahPeminjam(101, "Andi");
+    tambahPeminjam(102, "Budi");
+
+    tampilkanBuku();
+    tampilkanPeminjam();
+
+    pinjamBuku(101, 1);
+    tampilkanBuku();
+    tampilkanPeminjam();
+
+    kembalikanBuku(101);
+    tampilkanBuku();
+    tampilkanPeminjam();
+
+    return 0;
+}
